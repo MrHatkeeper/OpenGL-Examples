@@ -47,8 +47,8 @@ public class Main {
             GL33.glClearColor(0f, 0f, 0f, 1f);
             GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
 
-            Game.render(window);
             Game.update(window);
+            Game.render(window);
 
             // Swap the color buffer -> screen tearing solution
             GLFW.glfwSwapBuffers(window);

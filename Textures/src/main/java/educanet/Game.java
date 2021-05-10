@@ -1,7 +1,7 @@
 package educanet;
 
+import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -13,11 +13,17 @@ import java.nio.IntBuffer;
 
 public class Game {
 
+
+    public static float vertSpeed = 0.0001f;
+    public static float horzSpeed = 0.000143f;
+
+    public static float[] startPoint = {-0.2f, 0.2f};
+
     private static final float[] vertices = {
-            0.5f, 0.5f, 0.0f, // 0 -> Top right
-            0.5f, -0.5f, 0.0f, // 1 -> Bottom right
-            -0.5f, -0.5f, 0.0f, // 2 -> Bottom left
-            -0.5f, 0.5f, 0.0f, // 3 -> Top left
+            0.2f, 0.2f, 0.0f, // 0 -> Top right
+            0.2f, -0.2f, 0.0f, // 1 -> Bottom right
+            -0.2f, -0.2f, 0.0f, // 2 -> Bottom left
+            -0.2f, 0.2f, 0.0f, // 3 -> Top left
     };
 
     private static final float[] colors = {
@@ -42,14 +48,28 @@ public class Game {
     private static int squareVaoId;
     private static int squareVboId;
     private static int squareEboId;
+    private static int matrixLocation;
+    private static FloatBuffer matrixFloatBuffer;
+    private static int uniformColorLocation;
     private static int colorsId;
     private static int textureIndicesId;
+    private static Matrix4f viewMatrix = new Matrix4f()
+            .identity();
 
     private static int textureId;
 
     public static void init(long window) {
         // Setup shaders
         Shaders.initShaders();
+
+
+        matrixLocation = GL33.glGetUniformLocation(Shaders.shaderProgramId, "matrix");
+
+        // Get uniform location
+        uniformColorLocation = GL33.glGetUniformLocation(Shaders.shaderProgramId, "outColor");
+
+        matrixFloatBuffer = BufferUtils.createFloatBuffer(16);
+
 
         // Generate all the ids
         squareVaoId = GL33.glGenVertexArrays();
@@ -129,6 +149,29 @@ public class Game {
 
     public static void update(long window) {
 
+        viewMatrix.translate(vertSpeed, horzSpeed, 0.0f);
+        viewMatrix.get(matrixFloatBuffer);
+
+        startPoint[0] += vertSpeed;
+        startPoint[1] += horzSpeed;
+
+        if(startPoint[0] + 0.4f > 1f){
+            vertSpeed = vertSpeed * -1;
+        }
+        if(startPoint[0] < -1f){
+            vertSpeed = vertSpeed * -1;
+        }
+
+        if(startPoint[1] > 1f){
+            horzSpeed = horzSpeed * -1;
+        }
+        if(startPoint[1] - 0.4f < -1f){
+            horzSpeed = horzSpeed * -1;
+        }
+
+
+
+        GL33.glUniformMatrix4fv(matrixLocation, false, matrixFloatBuffer);
     }
 
     private static void loadImage() {
@@ -137,10 +180,8 @@ public class Game {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer comp = stack.mallocInt(1);
 
-            ByteBuffer img = STBImage.stbi_load("resources/textures/img.png", w, h, comp, 3);
+            ByteBuffer img = STBImage.stbi_load("resources/textures/pngegg.png", w, h, comp, 3);
             if (img != null) {
-                img.flip();
-
                 GL33.glBindTexture(GL33.GL_TEXTURE_2D, textureId);
                 GL33.glTexImage2D(GL33.GL_TEXTURE_2D, 0, GL33.GL_RGB, w.get(), h.get(), 0, GL33.GL_RGB, GL33.GL_UNSIGNED_BYTE, img);
                 GL33.glGenerateMipmap(GL33.GL_TEXTURE_2D);
@@ -149,5 +190,4 @@ public class Game {
             }
         }
     }
-
 }
