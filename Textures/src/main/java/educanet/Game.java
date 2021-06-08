@@ -15,7 +15,7 @@ public class Game {
 
 
     public static float vertSpeed = 0.0001f;
-    public static float horzSpeed = 0.000143f;
+    //public static float horzSpeed = 0.000143f;
 
     public static float[] startPoint = {-0.2f, 0.2f};
 
@@ -149,11 +149,11 @@ public class Game {
 
     public static void update(long window) {
 
-        viewMatrix.translate(vertSpeed, horzSpeed, 0.0f);
+        viewMatrix.translate(vertSpeed, 0, 0.0f);
         viewMatrix.get(matrixFloatBuffer);
 
         startPoint[0] += vertSpeed;
-        startPoint[1] += horzSpeed;
+        //startPoint[1] += horzSpeed;
 
         if(startPoint[0] + 0.4f > 1f){
             vertSpeed = vertSpeed * -1;
@@ -162,12 +162,12 @@ public class Game {
             vertSpeed = vertSpeed * -1;
         }
 
-        if(startPoint[1] > 1f){
+        /*if(startPoint[1] > 1f){
             horzSpeed = horzSpeed * -1;
         }
         if(startPoint[1] - 0.4f < -1f){
             horzSpeed = horzSpeed * -1;
-        }
+        }*/
 
 
 
